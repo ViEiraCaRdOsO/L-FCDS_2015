@@ -18,13 +18,18 @@ SRC_GEN	= test/gen.c
 SRC_TEST = test/test.c
 EXE_TEST = bin/test
 
+CORE_NUM = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+
 all: make_dirs $(EXE_SEQ) $(EXE_CON) $(EXE_TEST) $(EXE_GEN)
 
 clean:
 	rm -f -r bin
+	rm -f -r output
+	rm -f $(IN)
 
 make_dirs:
 	mkdir -p bin
+	mkdir -p output
 
 $(EXE_SEQ): $(SRC_SEQ)
 	$(CC) $(FLAGS) $^ -o $@
@@ -43,12 +48,13 @@ run_con: $(SRC_CON)
 run_test:
 	./$(EXE_TEST) $(OUT_SEQ) $(OUT_CON)
 run_scale:
+	# gen input
 	./$(EXE_GEN) 10000 > $(IN)
-	export OMP_NUM_THREADS=8
-	time ./$(EXE_CON) $(IN) $(OUT_CON)
-#	./$(EXE_SEQ) $(IN) $(OUT_SEQ)
-#	for i in $(shell seq 1 8); do \
+	# run seq
+	./$(EXE_SEQ) $(IN) $(OUT_SEQ)
+	# run con
+	for i in $(shell seq 1 8); do \
 		export OMP_NUM_THREADS=$$i; \
-		./$(EXE_CON) $(IN) $(OUT_CON); \
+		taskset -c $(CORE_NUM) ./$(EXE_CON) $(IN) $(OUT_CON); \
 		./$(EXE_TEST) $(OUT_SEQ) $(OUT_CON); \
 	done

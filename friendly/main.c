@@ -11,8 +11,11 @@ int main(int argc, char **argv) {
 		scanf("%ld %ld", &start, &end);
 		if (start == 0 && end == 0)
 			break;
+		double st = omp_get_wtime();
 		printf("Number %ld to %ld\n", start, end);
 		friendly_numbers(start, end);
+		double ed = omp_get_wtime();
+		printf("using time %.4lfs", ed - st);
 	}
 
 	return EXIT_SUCCESS;

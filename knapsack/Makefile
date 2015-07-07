@@ -1,40 +1,43 @@
 CC	= g++
 FLAGS	= -fopenmp -O3 -Wall -Wno-unused-result
 
-SRC	= knapsack.c
-EXEC	= bin/knapsack
-SEQ	= sequential/knapsack.c
-SEQ_EXE	= bin/seq_knapsack
-GEN_IN	= input/gen.in
-RESULT	= output/result.txt
+SRC_CON	= knapsack_con.c
+SRC_SEQ	= knapsack_seq.c
+EXE_CON	= bin/knapsack_con
+EXE_SEQ	= bin/knapsack_seq
 OUT_SEQ	= output/seq.out
 OUT_CON	= output/con.out
-TEST_SRC= test/test_main.cpp test/test_function.cpp
-TEST	= test/test
 
-all: make_dirs $(EXEC) $(TEST) $(SEQ_EXE)
+GEN_IN	= input/gen.in
+
+SRC_TEST = test/test_main.cpp test/test_function.cpp
+EXE_TEST = bin/test
+
+CORE_NUM = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+
+all: make_dirs $(EXE_CON) $(EXE_TEST) $(EXE_SEQ)
 
 clean:
 	rm -f -r bin
 	rm -f -r output
+	rm -f $(GEN_IN)
 
 make_dirs:
 	mkdir -p bin
 	mkdir -p output
 
-$(EXEC): $(SRC)
+$(EXE_CON): $(SRC_CON)
 	$(CC) $(FLAGS) $^ -o $@
-$(TEST): $(TEST_SRC)
+$(EXE_TEST): $(SRC_TEST)
 	$(CC) $(FLAGS) $^ -o $@
-$(SEQ_EXE): $(SEQ)
+$(EXE_SEQ): $(SRC_SEQ)
 	$(CC) $(FLAGS) $^ -o $@
 
-gen_run_check: $(TEST_M) $(TEST_F)
+run_scale:
 	rm -f $(OUT_CON)
-	./$(TEST) gen $(GEN_IN)  1024 24000
-
+	./$(EXE_TEST) gen $(GEN_IN)  1024 1000000
 	for i in $(shell seq 1 8); do \
-		./$(EXEC) $$i $(GEN_IN) $(OUT_CON); \
+		taskset -c $(CORE_NUM) ./$(EXE_CON) $$i $(GEN_IN) $(OUT_CON); \
 	done
-	#time ./$(SEQ_EXE) $(GEN_IN) $(OUT_SEQ)
-	#./$(TEST) check $(OUT_SEQ) $(OUT_CON) $(RESULT)
+#	./$(EXE_SEQ) $(GEN_IN) $(OUT_SEQ)
+#	./$(EXE_TEST) check $(OUT_SEQ) $(OUT_CON)
