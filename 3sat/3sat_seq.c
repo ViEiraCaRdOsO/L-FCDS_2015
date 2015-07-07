@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 
 // Solves the 3-SAT system using an exaustive search
 // It finds all the possible values for the set of variables using
@@ -80,9 +81,9 @@ int main(int argc, char *argv[]) {
 	scanf("%d %d", &nClauses, &nVar);
 
 	short **clauses = readClauses(nClauses, nVar);
-
+	double st = omp_get_wtime();
 	long solution = solveClauses(clauses, nClauses, nVar);
-
+	double ed = omp_get_wtime();
 	int i;
 	if (solution >= 0) {
 		printf("Solution found [%ld]: ", solution);
@@ -91,7 +92,8 @@ int main(int argc, char *argv[]) {
 		printf("\n");
 	} else
 		printf("Solution not found.\n");
-
+	printf("take %.4lfs\n", ed - st);
+	
 	return EXIT_SUCCESS;
 }
 

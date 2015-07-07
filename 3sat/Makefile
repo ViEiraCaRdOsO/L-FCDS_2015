@@ -36,9 +36,9 @@ $(EXE_GEN): $(SRC_GEN)
 
 run_scale:
 	# gen input
-	./$(EXE_GEN) 50 10 > $(IN)
+	#./$(EXE_GEN) 50 10 > $(IN)
 	# run seq
-	./$(EXE_SEQ) < $(IN)
+	./$(EXE_SEQ) < input/large.in
 	# run con
 	for i in $(shell seq 1 8); do \
 		export OMP_NUM_THREADS=$$i; \
