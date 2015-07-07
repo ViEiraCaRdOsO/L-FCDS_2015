@@ -48,4 +48,4 @@ run_scale:
 		echo "con".$$i.":"; \
 		taskset -c $(CORE_NUM) ./$(EXE_CON) $(IN) $(OUT_CON); \
 		./$(EXE_TEST) $(OUT_SEQ) $(OUT_CON); \
-	do
+	done

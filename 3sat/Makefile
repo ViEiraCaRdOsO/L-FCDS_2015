@@ -1,5 +1,5 @@
 CC    = g++
-FLAGS = -std=c++11 -O3 -Wall -Wno-unused-result -fopenmp
+FLAGS = -O3 -Wall -Wno-unused-result -fopenmp
 
 CON_1 = 3sat_con_v1
 CON_2 = 3sat_con_v2
