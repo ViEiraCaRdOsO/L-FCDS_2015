@@ -29,6 +29,7 @@ clean:
 
 make_dirs:
 	mkdir -p bin
+	mkdir -p input
 
 $(EXE_SEQ): $(SRC_SEQ)
 	$(CC) $(FLAGS) $^ -o $@ -lm

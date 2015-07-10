@@ -52,6 +52,8 @@ int main(int argc, char *argv[]) {
   int sf, cf, tn;
   sf = cf = tn = 1;
   int correct = 1;
+  double seq_time = -1;
+  double con_time = -1;
   while(correct) {
     sn = cn = 0;
     while(fgets(line, STR_MAX, fseq) != NULL) {
@@ -64,6 +66,7 @@ int main(int argc, char *argv[]) {
 	sn++;
       } else break;
     }
+    sscanf(line, "using time %lfs", &seq_time);
 
     if(sn == 0) break;
     
@@ -83,6 +86,7 @@ int main(int argc, char *argv[]) {
       correct = 0;
       break;
     }
+    sscanf(line, "using time %lfs", &con_time);
 
     if(sn != cn) {
       correct = 0;break;
@@ -102,8 +106,9 @@ int main(int argc, char *argv[]) {
 
   closefiles();
 
-  if(correct) printf("Correct\n");
-  else printf("Wrong Answer at %dth test case\n", tn);
+  if(correct) {
+    printf("Correct, speedup = %.4lf | seq: %.4lfs, con: %.4lfs\n", seq_time/con_time, seq_time, con_time);
+  } else printf("Wrong Answer at %dth test case\n", tn);
   
   return 0;
 }

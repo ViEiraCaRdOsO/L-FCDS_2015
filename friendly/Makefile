@@ -46,6 +46,5 @@ run_scale:
 		echo "[now running on #proc = $$i]"; \
 		export OMP_NUM_THREADS=$$i; \
 		taskset -c $(CORE_NUM) ./$(EXE_CON) < $(INPUT) > $(OUT_CON); \
-		# test if output is correct (to seq)
 		./$(EXE_TEST) $(OUT_SEQ) $(OUT_CON); \
 	done

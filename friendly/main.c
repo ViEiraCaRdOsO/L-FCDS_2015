@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 		printf("Number %ld to %ld\n", start, end);
 		friendly_numbers(start, end);
 		double ed = omp_get_wtime();
-		printf("using time %.4lfs", ed - st);
+		printf("using time %.4lfs\n", ed - st);
 	}
 
 	return EXIT_SUCCESS;
