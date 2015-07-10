@@ -17,7 +17,7 @@ EXE_TEST = bin/test
 
 INPUT = input/large.in
 
-CORE_NUM = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+CORE_NUM = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31
 
 all: make_dirs $(EXE_SEQ) $(EXE_CON) $(EXE_TEST)
 
@@ -42,7 +42,8 @@ run_scale:
 	# run seq first
 	./$(EXE_SEQ) < $(INPUT) > $(OUT_SEQ)
 	# now run scale the concurrent version
-	for i in $(shell seq 1 8); do \
+	for i in $(shell seq 1 $(shell if [ -z $(PROC_NUM) ] ; then read -p "scale from 0, to how many processors?" PROC_NUM ; echo $$PROC_NUM ; fi )); do \
+		echo "[now running on #proc = $$i]"; \
 		export OMP_NUM_THREADS=$$i; \
 		taskset -c $(CORE_NUM) ./$(EXE_CON) < $(INPUT) > $(OUT_CON); \
 		# test if output is correct (to seq)
