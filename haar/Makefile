@@ -49,7 +49,6 @@ final_scale:
 	for i in $(shell seq 1 $(shell if [ -z $(PROC_NUM) ] ; then read -p "scale from 0, to how many processors?" PROC_NUM ; echo $$PROC_NUM ; fi )); do \
 		echo "[now running on #proc = $$i]"; \
 		export OMP_NUM_THREADS=$$i; \
-		echo "con".$$i.":"; \
 		taskset -c $(CORE_NUM) ./$(EXE_CON) $$IN_PATH $(OUT_CON) $(OUT_TIME); \
 		./$(EXE_TEST) $(shell if [ -z $(CHECK_PATH) ] ; then read -p "compare file path: " CHECK_PATH ; echo $$CHECK_PATH ; fi) $(OUT_CON) $(OUT_TIME); \
 	done; fi

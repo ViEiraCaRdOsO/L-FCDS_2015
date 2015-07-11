@@ -47,7 +47,7 @@ void openfiles(char *in, char *out, char *time) {
     perror("fopen: cannot create output file");
     exit(EXIT_FAILURE);
   }
-  ftime = fopen(time, "w+");
+  ftime = fopen(time, "a+");
   if (ftime == NULL) {
     perror("fopen: cannot create time-measure file");
     exit(EXIT_FAILURE);
