@@ -7,6 +7,7 @@ EXE_CON	= bin/knapsack_con
 EXE_SEQ	= bin/knapsack_seq
 OUT_SEQ	= output/seq.out
 OUT_CON	= output/con.out
+OUT_TIME = output/time.out
 
 GEN_IN	= input/gen.in
 
@@ -33,12 +34,17 @@ $(EXE_TEST): $(SRC_TEST)
 $(EXE_SEQ): $(SRC_SEQ)
 	$(CC) $(FLAGS) $^ -o $@
 
-run_scale:
-	rm -f $(OUT_CON)
-	./$(EXE_TEST) gen $(GEN_IN)  1024 1000000
+gen_input:
+	./$(EXE_TEST) gen $(GEN_IN) $(shell if [ -z $(SIZE_M) ] ; then read -p "#item? (n<=1024) " SIZE_M ;echo $$SIZE_M; fi) $(shell if [ -z $(SIZE_C) ] ; then read -p "knapsack capacity? (M<=10**6) " SIZE_C ;echo $$SIZE_C; fi)
+
+run_seq:
+	./$(EXE_SEQ) $(shell if [ -z $(IN_PATH) ] ; then read -p "input file path: " IN_PATH ;echo $$IN_PATH; fi) $(OUT_SEQ) $(OUT_TIME)
+
+final_scale:
+	if [ -z $(IN_PATH) ] ; then read -p "input file path: " IN_PATH ; \
 	for i in $(shell seq 1 $(shell if [ -z $(PROC_NUM) ] ; then read -p "scale from 0, to how many processors?" PROC_NUM ; echo $$PROC_NUM ; fi )); do \
 		echo "[now running on #proc = $$i]"; \
-		taskset -c $(CORE_NUM) ./$(EXE_CON) $$i $(GEN_IN) $(OUT_CON); \
-	done
-#	./$(EXE_SEQ) $(GEN_IN) $(OUT_SEQ)
-#	./$(EXE_TEST) check $(OUT_SEQ) $(OUT_CON)
+		export OMP_NUM_THREADS=$$i; \
+		taskset -c $(CORE_NUM) ./$(EXE_CON) $$IN_PATH $(OUT_CON) $(OUT_TIME); \
+		./$(EXE_TEST) check $(shell if [ -z $(CHECK_PATH) ] ; then read -p "compare file path: " CHECK_PATH ; echo $$CHECK_PATH ; fi) $(OUT_CON) $(OUT_TIME); \
+	done; fi

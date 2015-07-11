@@ -4,19 +4,24 @@
 #include <assert.h>
 
 #define LENGTH 8
+#define EPS 1e-6
 
-FILE *fin1, *fin2;
+FILE *fin1, *fin2, *ftime;
 
-void openfiles(char* in1, char *in2) {
+void openfiles(char* in1, char *in2, char *time) {
   fin1 = fopen(in1, "r");
   if (fin1 == NULL) {
     perror("fopen fin");
     exit(EXIT_FAILURE);
   }
-  
   fin2 = fopen(in2, "r");
   if (fin2 == NULL) {
     perror("fopen fin");
+    exit(EXIT_FAILURE);
+  }
+  ftime = fopen(time, "r");
+  if (ftime == NULL) {
+    perror("fopen ftime");
     exit(EXIT_FAILURE);
   }
 }
@@ -24,13 +29,14 @@ void openfiles(char* in1, char *in2) {
 void closefiles(void) {
   fclose(fin1);
   fclose(fin2);
+  fclose(ftime);
 }
 
 int main(int argc, char* argv[]) {
 
-  assert(("Usage: ./test <answer> <to_check>\n") && argc == 3);
+  assert(("Usage: ./test [answer file] [to_check file] [time_measure file]\n") && argc == 4);
   
-  openfiles(argv[1], argv[2]);
+  openfiles(argv[1], argv[2], argv[3]);
 
   int correct = 1;
   char s1[LENGTH], s2[LENGTH];
@@ -44,8 +50,12 @@ int main(int argc, char* argv[]) {
     c++;
   }
 
-  if (correct) printf("correct!\n");
-  else printf("wrong answer at %ld: expected %s but %s\n", c, s1, s2);
+  double tseq, tcon;
+  fscanf(ftime, "%lf", &tseq);
+  while(fscanf(ftime, "%lf", &tcon) != EOF);
+  
+  if (correct) printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
+  else printf("Wrong answer at %ld: expected %s but %s\n", c, s1, s2);
   
   closefiles();
   

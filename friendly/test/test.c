@@ -5,13 +5,15 @@
 
 #define STR_MAX 100
 #define MAX 500001
+#define TEST_MAX 10000
+#define EPS 1e-6
 
 typedef struct pair{
   long int a;
   long int b;
 }pair;
 
-FILE *fseq, *fcon;
+FILE *fseq, *fcon, *ftime;
 
 int cmp(const void *a, const void *b) {
   pair c = *(pair *)a;
@@ -21,7 +23,7 @@ int cmp(const void *a, const void *b) {
   return c.b - d.b;
 }
 
-void openfiles(char *seq, char *con) {
+void openfiles(char *seq, char *con, char *time) {
   fseq = fopen(seq, "r");
   if(fseq == NULL) {
     perror("fopen fseq");
@@ -32,28 +34,33 @@ void openfiles(char *seq, char *con) {
     perror("fopen fcon");
     exit(EXIT_FAILURE);
   }
+  ftime = fopen(time, "r");
+  if(ftime == NULL) {
+    perror("fopen ftime");
+    exit(EXIT_FAILURE);
+  }
 }
 
 void closefiles() {
   fclose(fseq);
   fclose(fcon);
+  fclose(ftime);
 }
 
 int main(int argc, char *argv[]) {
-  assert(("Usage: ./test <seq_out> <con_out>") && argc == 3);
-  openfiles(argv[1], argv[2]);
+  assert(("Usage: ./test [seq_out] [con_out] [time_measure]") && argc == 4);
+  openfiles(argv[1], argv[2], argv[3]);
 
   char line[STR_MAX];
   pair Aseq[MAX];
   pair Acon[MAX];
+  int i,j;
   long int sS,sE, cS, cE;
   sS = sE = cS = cE = -1;
   long int sn, cn;
   int sf, cf, tn;
   sf = cf = tn = 1;
   int correct = 1;
-  double seq_time = -1;
-  double con_time = -1;
   while(correct) {
     sn = cn = 0;
     while(fgets(line, STR_MAX, fseq) != NULL) {
@@ -66,7 +73,6 @@ int main(int argc, char *argv[]) {
 	sn++;
       } else break;
     }
-    sscanf(line, "using time %lfs", &seq_time);
 
     if(sn == 0) break;
     
@@ -86,7 +92,6 @@ int main(int argc, char *argv[]) {
       correct = 0;
       break;
     }
-    sscanf(line, "using time %lfs", &con_time);
 
     if(sn != cn) {
       correct = 0;break;
@@ -104,10 +109,18 @@ int main(int argc, char *argv[]) {
     tn++;
   }
 
+  double seq_time[tn], con_time[tn];
+  for(i=0;i<tn;i++)
+    fscanf(ftime, "%lf", &seq_time[i]);
+  j = 0;
+  while(fscanf(ftime, "%lf", &con_time[j%tn]) != EOF) j++;
+  
   closefiles();
 
   if(correct) {
-    printf("Correct, speedup = %.4lf | seq: %.4lfs, con: %.4lfs\n", seq_time/con_time, seq_time, con_time);
+    printf("Correct | speedup = ");
+    for(i=0;i<tn;i++) printf("%.4lf ", seq_time[i]/(EPS+con_time[i]));
+    printf("\n");
   } else printf("Wrong Answer at %dth test case\n", tn);
   
   return 0;

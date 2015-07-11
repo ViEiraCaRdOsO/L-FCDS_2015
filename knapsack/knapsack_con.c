@@ -9,24 +9,19 @@
 #define mMAX 1000001
 #define nMAX 1025
 
-FILE *fin, *fout;
+FILE *fin, *fout, *ftime;
 
 int value[nMAX];
 int weight[nMAX];
 long long int dp[mMAX];
 omp_lock_t lock[mMAX];
 
-void openfiles(char* in, char* out);
+void openfiles(char* in, char* out, char *time);
 void closefiles();
 
 int main(int argc, char *argv[]) {
-
-  assert(("Usage: ./knapsack <num_thread> <input_file> <output_file>\n" && argc == 4));
-  int num_threads = atoi(argv[1]);
-  omp_set_num_threads(num_threads);
-  assert(("Length of input/output file name should not exceed 100\n" && strlen(argv[2])<100 && strlen(argv[3])<100));
-  
-  openfiles(argv[2], argv[3]);
+  assert(("Usage: ./knapsack.c [input file] [output file] [time_measure file]\n" && argc == 4));
+  openfiles(argv[1], argv[2], argv[3]);
   
   int n, M;
   fscanf(fin, "%d %d", &n, &M);
@@ -51,27 +46,31 @@ int main(int argc, char *argv[]) {
 
   double end_time = omp_get_wtime();
 
-  printf("using %d threads, take %.4lf s, ", num_threads, end_time - start_time);
+  printf("take %.4lf s, ", end_time - start_time);
+  fprintf(ftime, "%.4lf\n", end_time - start_time);
   
   printf("%lld\n", dp[M]);
-  fprintf(fout, "%d %lld\n", num_threads, dp[M]);
+  fprintf(fout, "%lld\n", dp[M]);
 
   closefiles();
   
   return 0;
 }
 
-void openfiles(char* in, char* out) {
+void openfiles(char* in, char* out, char *time) {
   fin = fopen(in, "r");
   if(fin == NULL) {
-    perror("input file not exist!\n");
+    perror("fopen: input file");
     exit(EXIT_FAILURE);
   }
-  
-  fout = fopen(out, "a");
-  if(fout == NULL) fout = fopen(out, "w+");
+  fout = fopen(out, "w+");
   if(fout == NULL) {
-    perror("cannot create output file\n");
+    perror("fopen: output file");
+    exit(EXIT_FAILURE);
+  }
+  ftime = fopen(time, "a+");
+  if(ftime == NULL) {
+    perror("fopen: time-measure file");
     exit(EXIT_FAILURE);
   }
 }
@@ -79,4 +78,5 @@ void openfiles(char* in, char* out) {
 void closefiles() {
   fclose(fin);
   fclose(fout);
+  fclose(ftime);
 }

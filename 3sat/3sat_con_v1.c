@@ -1,9 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include <omp.h>
 
 #define CHUNK 1000
+
+FILE *fout, *ftime;
+
+void openfiles(char* in1, char *in2) {
+  fout = fopen(in1, "w+");
+  if (fout == NULL) {
+    perror("fopen: cannot create output file");
+    exit(EXIT_FAILURE);
+  }
+  
+  ftime = fopen(in2, "a+");
+  if (ftime == NULL) {
+    perror("fopen: cannot create/open time measure file");
+    exit(EXIT_FAILURE);
+  }
+}
+
+void closefiles(void) {
+  fclose(fout);
+  fclose(ftime);
+}
 
 long solveClauses(short **clauses, int nClauses, int nVar) {
   long *iVar = (long *) malloc(nVar * sizeof(long));
@@ -65,10 +87,12 @@ short **readClauses(int nClauses, int nVar) {
 }
 
 int main(int argc, char *argv[]) {
-
+  assert(("Usage: ./3sat_seq [output path] [record_time file]") && argc == 3);
+  openfiles(argv[1], argv[2]);
+  
   int nClauses;
   int nVar;
-
+  
   scanf("%d %d", &nClauses, &nVar);
 
   short **clauses = readClauses(nClauses, nVar);
@@ -76,17 +100,26 @@ int main(int argc, char *argv[]) {
   double st = omp_get_wtime();
   long solution = solveClauses(clauses, nClauses, nVar);
   double ed = omp_get_wtime();
-  printf("take %lfs\n", ed-st);
   
   int i;
   if (solution >= 0) {
     printf("Solution found [%ld]: ", solution);
-    for (i = 0; i < nVar; i++)
+    fprintf(fout, "Solution found [%ld]: ", solution);
+    for (i = 0; i < nVar; i++) {
       printf("%d ", (int) ((solution & (long) exp2(i)) / exp2(i)));
+      fprintf(fout, "%d ", (int) ((solution & (long) exp2(i)) / exp2(i)));
+    }
     printf("\n");
-  } else
+  } else {
     printf("Solution not found.\n");
+    fprintf(fout, "Solution not found.\n");
+  }
 
+  printf("take %lfs\n", ed-st);
+  fprintf(ftime, "%.4lf\n", ed - st);
+
+  closefiles();
+  
   return EXIT_SUCCESS;
 }
 

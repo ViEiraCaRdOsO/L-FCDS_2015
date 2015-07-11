@@ -5,7 +5,7 @@
 #include <assert.h>
 
 int main(int argc, char *argv[]) {
-  static const char *usage = "Usage:\n./main_test gen [gen_input_name] n M or\n,.main_test check [sequential_output] [concurrent_output]";
+  static const char *usage = "Usage: ./main_test gen [gen_input_name] n M or\n,.main_test check [sequential_output] [concurrent_output] [time_measure]";
   static const char *gen = "gen";
   static const char *check = "check";
   
@@ -17,8 +17,8 @@ int main(int argc, char *argv[]) {
     gen_input(argv[2], n, M);
   }
   else if(strcmp(argv[1], check)==0) {
-    if(argc != 4) perror(usage);
-    check_answer(argv[2], argv[3]);
+    if(argc != 5) perror(usage);
+    check_answer(argv[2], argv[3], argv[4]);
   }
   else perror(usage);
 

@@ -5,6 +5,8 @@
 #include <string.h>
 #include <assert.h>
 
+#define EPS 1e-6
+
 void gen_input(char *filename, int n, int M) {
   FILE *fgen = fopen(filename, "w+");
   assert(("n <= 1024, M <= 10^6\n" && n<=1024 && M <= 1<<20));
@@ -15,19 +17,24 @@ void gen_input(char *filename, int n, int M) {
   fclose(fgen);
 }
 
-void check_answer(char *seqFile, char *conFile) {
+void check_answer(char *seqFile, char *conFile, char *timeFile) {
   FILE *fcon = fopen(conFile, "r");
   FILE *fseq = fopen(seqFile, "r");
+  FILE *ftime = fopen(timeFile, "r");
 
-  assert(("Failed to open/create sequential/concurrent output file\n" && fcon!=NULL && fseq!=NULL));
+  assert(("Failed to open/create answer/to-check/time-measure file\n" && fcon!=NULL && fseq!=NULL && ftime!=NULL));
   
-  int ans;
+  int ans, tans;
   fscanf(fseq, "%d", &ans);
-  int thread_num, tans;
-  while(fscanf(fcon, "%d%d", &thread_num, &tans)!=EOF) {
-    if(ans == tans) printf("thread_num=%d: correct\n", thread_num);
-    else printf("thread_num=%d: wrong, expected %d, but %d\n", thread_num, ans, tans);
-  }
+  fscanf(fcon, "%d", &tans);
+  if(ans == tans) {
+    double tseq, tcon;
+    fscanf(ftime, "%lf", &tseq);
+    while(fscanf(ftime, "%lf", &tcon) != EOF);
+    printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
+  } else printf("Wrong Answer, expected %d, but %d\n", ans, tans);
+    
   fclose(fcon);
   fclose(fseq);
+  fclose(ftime);
 }

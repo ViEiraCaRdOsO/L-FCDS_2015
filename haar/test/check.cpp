@@ -2,34 +2,46 @@
 #include <stdlib.h>
 #include <assert.h>
 
-FILE *fin1, *fin2;
+#define EPS 1e-6
+
+FILE *fin1, *fin2, *ftime;
 
 int *pixel1, *pixel2;
 
-void openfiles(char *f1, char *f2);
+void openfiles(char *f1, char *f2, char *time);
 int read_compare(void);
 void closefiles(void);
 
 int main(int argc, char *argv[]) {
-  assert(("Usage: ./check [seq_out_file] [con_out_file]\n") && argc == 3);
-  openfiles(argv[1], argv[2]);
+  assert(("Usage: ./check [answer-file] [to-check-file] [time_measure_file]\n") && argc == 4);
+  openfiles(argv[1], argv[2], argv[3]);
   int rst = read_compare();
-  if(rst == 1) puts("Correct");
+  if(rst == 1) {
+    double tseq, tcon;
+    fscanf(ftime, "%lf", &tseq);
+    while(fscanf(ftime, "%lf", &tcon) != EOF);
+    printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
+  }
   else puts("Wrong answer");
   closefiles();
   
   return 0;
 }
 
-void openfiles(char *f1, char *f2) {
+void openfiles(char *f1, char *f2, char *time) {
   fin1 = fopen(f1, "r");
   if (fin1 == NULL) {
-    perror("fopen inputfile");
+    perror("fopen answer-file");
     exit(EXIT_FAILURE);
   }
   fin2 = fopen(f2, "r");
   if (fin2 == NULL) {
-    perror("fopen outputfile");
+    perror("fopen to-check-file");
+    exit(EXIT_FAILURE);
+  }
+  ftime = fopen(time, "r");
+  if (ftime == NULL) {
+    perror("fopen time-measure-file");
     exit(EXIT_FAILURE);
   }
 }
@@ -37,6 +49,7 @@ void openfiles(char *f1, char *f2) {
 void closefiles(void) {
   fclose(fin1);
   fclose(fin2);
+  fclose(ftime);
 }
 
 int read_compare(void) {

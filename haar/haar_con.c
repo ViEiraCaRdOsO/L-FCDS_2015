@@ -7,10 +7,10 @@
 #define pixel(x,y) pixels[((y)*size)+(x)]
 #define CHUNK_SIZE 1<<9
 
-FILE *fin, *fout;
+FILE *fin, *fout, *ftime;
 int *pixels;
 
-void openfiles(char *in, char *out);
+void openfiles(char *in, char *out, char *time);
 void closefiles(void);
 void read_data(long long int size);
 void transform(long long int size);
@@ -18,8 +18,8 @@ void write_data(long long int size);
 void print(long long int size);
 
 int main(int argc, char *argv[]) {
-  assert(("Usage: ./haar_con [input_file] [output_file]\n") && argc == 3);
-  openfiles(argv[1], argv[2]);
+  assert(("Usage: ./haar_con [input_file] [output_file] [time_measure_file]\n") && argc == 4);
+  openfiles(argv[1], argv[2], argv[3]);
   
   long long int size;
   fread(&size, sizeof(size), 1, fin);
@@ -36,15 +36,20 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void openfiles(char *in, char *out) {
-  fin = fopen(in, "r");
-  if (fin == NULL) {
-    perror("fopen inputfile");
+void openfiles(char *in, char *out, char *time) {
+  fin = fopen(in, "rb");
+  if (in == NULL) {
+    perror("fopen: cannot open input file");
     exit(EXIT_FAILURE);
   }
-  fout = fopen(out, "w+");
-  if (fout == NULL) {
-    perror("fopen outputfile");
+  fout = fopen(out, "wb");
+  if (out == NULL) {
+    perror("fopen: cannot create output file");
+    exit(EXIT_FAILURE);
+  }
+  ftime = fopen(time, "w+");
+  if (ftime == NULL) {
+    perror("fopen: cannot create time-measure file");
     exit(EXIT_FAILURE);
   }
 }
@@ -52,6 +57,7 @@ void openfiles(char *in, char *out) {
 void closefiles(void) {
   fclose(fin);
   fclose(fout);
+  fclose(ftime);
 }
 
 void read_data(long long int size) {
@@ -97,7 +103,8 @@ void transform(long long int size) {
   }
 
   double ed = omp_get_wtime();
-  printf("time to transform %.4lfs\n", ed - st);
+  printf("time to haar %.4lfs\n", ed - st);
+  fprintf(ftime, "%lf\n", ed - st);
 }
 
 void write_data(long long int size) {
