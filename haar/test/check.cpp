@@ -17,9 +17,9 @@ int main(int argc, char *argv[]) {
   openfiles(argv[1], argv[2], argv[3]);
   int rst = read_compare();
   if(rst == 1) {
-    double tseq, tcon;
+    double tseq, tcon, tmp;
     fscanf(ftime, "%lf", &tseq);
-    while(fscanf(ftime, "%lf", &tcon) != EOF);
+    while(fscanf(ftime, "%lf", &tmp) != EOF) tcon = tmp;
     printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
   }
   else puts("Wrong answer");

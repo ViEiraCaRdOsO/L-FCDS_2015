@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  double tseq, tcon;
+  double tseq, tcon, tmp;
   fscanf(ftime, "%lf", &tseq);
-  while(fscanf(ftime, "%lf", &tcon) != EOF);
+  while(fscanf(ftime, "%lf", &tmp) != EOF) tcon = tmp;
   printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
   
   closefiles();

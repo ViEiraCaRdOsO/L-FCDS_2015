@@ -28,9 +28,9 @@ void check_answer(char *seqFile, char *conFile, char *timeFile) {
   fscanf(fseq, "%d", &ans);
   fscanf(fcon, "%d", &tans);
   if(ans == tans) {
-    double tseq, tcon;
+    double tseq, tcon, tmp;
     fscanf(ftime, "%lf", &tseq);
-    while(fscanf(ftime, "%lf", &tcon) != EOF);
+    while(fscanf(ftime, "%lf", &tmp) != EOF) tcon = tmp;
     printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
   } else printf("Wrong Answer, expected %d, but %d\n", ans, tans);
     

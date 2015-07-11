@@ -109,11 +109,11 @@ int main(int argc, char *argv[]) {
     tn++;
   }
 
-  double seq_time[tn], con_time[tn];
+  double seq_time[tn], con_time[tn], tmp;
   for(i=0;i<tn;i++)
     fscanf(ftime, "%lf", &seq_time[i]);
   j = 0;
-  while(fscanf(ftime, "%lf", &con_time[j%tn]) != EOF) j++;
+  while(fscanf(ftime, "%lf", &tmp) != EOF) con_time[j++] = tmp;
   
   closefiles();
 

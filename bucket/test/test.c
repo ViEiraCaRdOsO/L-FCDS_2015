@@ -49,13 +49,13 @@ int main(int argc, char* argv[]) {
     }
     c++;
   }
-
-  double tseq, tcon;
-  fscanf(ftime, "%lf", &tseq);
-  while(fscanf(ftime, "%lf", &tcon) != EOF);
   
-  if (correct) printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
-  else printf("Wrong answer at %ld: expected %s but %s\n", c, s1, s2);
+  if (correct) {
+    double tseq, tcon, tmp;
+    fscanf(ftime, "%lf", &tseq);
+    while(fscanf(ftime, "%lf", &tmp) != EOF) tcon = tmp;
+    printf("Correct | speedup = %.4lf, seq: %.4lf, con: %.4lf\n", tseq/(tcon+EPS), tseq, tcon);
+  } else printf("Wrong answer at %ld: expected %s but %s\n", c, s1, s2);
   
   closefiles();
   
